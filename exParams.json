@@ -1,0 +1,8 @@
+{
+    "POST": {
+        "/api/add": (["param1","param2"], func(param1,param2) )
+    },
+    "GET": {
+
+    }
+}
