@@ -2,11 +2,24 @@ import time
 import BaseHTTPServer
 
 
+import json
+
 HOST_NAME = 'localhost' # !!!REMEMBER TO CHANGE THIS!!!
 PORT_NUMBER = 13377 # Maybe set this to 9000.
 
+def add(objectIn):
+    return objectIn['param1'] + objectIn['param2']
+
+def subtract(objectIn):
+    return objectIn['param1'] - objectIn['param2']
+
+functions = {
+    "add":add,
+    "subtract":subtract,
+}
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    
     def do_HEAD(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -37,8 +50,13 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     
         length = int(self.headers['Content-Length'])
         content = self.rfile.read(length)
+
+        objectIn = json.loads(content)
         
-        print content
+        print functions[objectIn['function']](objectIn)
+
+
+
 
 #on Startup
 if __name__ == '__main__':
