@@ -6,7 +6,10 @@ def prettyPrint(obj):
     return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
 
 def getArgs(fn):
-    return list(fn.__code__.co_varnames)
+    return list(fn.__code__.co_varnames)[:fn.__code__.co_argcount]
+
+class DynamicObject(object):
+    pass
 
 class HttpEndpoint:
     def __init__(self, httpCall, path, funcToExecute):
@@ -17,9 +20,13 @@ class HttpEndpoint:
 
 class Evaluator:
     allFunctions = {}
+    currentState = DynamicObject()
+
     @staticmethod
     def setUp(newFunctions = {}):
         Evaluator.allFunctions = newFunctions
+        currentState = DynamicObject()
+        
     @staticmethod
     def addFunction(endpoint):
         #endpoint is an HttpEndpoint
@@ -30,11 +37,15 @@ class Evaluator:
     @staticmethod
     def evaluate(httpCall, path, inputData):
         inputsToFind, funcToExecute = Evaluator.allFunctions[httpCall][path].inputs,Evaluator.allFunctions[httpCall][path].funcToExecute
-        allInputData = {} #only good data
+        if "globalState" in inputsToFind:
+            allInputData = {"globalState": Evaluator.currentState} #only good data
+        else:
+            allInputData = {}
         for eachInput in inputsToFind:
-            if eachInput in inputData.keys():
+            print eachInput
+            if eachInput in inputData.keys() and eachInput != "globalState":
                 allInputData[eachInput] = inputData[eachInput]
-            else:
+            elif eachInput != "globalState":
                 return False, {"Error": eachInput + " is a required parameter"}
         return True, funcToExecute(**allInputData)
 

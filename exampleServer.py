@@ -24,6 +24,7 @@ class Evaluator():
         inputsToFind, funcToExecute = Evaluator.allFunctions[httpCall][path]
         allInputData = {} #only good data
         for eachInput in inputsToFind:
+            print eachInput
             if eachInput in inputData.keys():
                 allInputData[eachInput] = inputData[eachInput]
             else:
