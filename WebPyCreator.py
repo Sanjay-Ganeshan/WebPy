@@ -1,6 +1,6 @@
 import WebPyServer
 
-def createServer(functions):
+def createServer(functions, hostname = "localhost", port = 8080):
     '''
     def add(x, y):
         #return {"result": x+y}
@@ -19,6 +19,6 @@ def createServer(functions):
             evaluator.addFunction(WebPyServer.HttpEndpoint("POST","/api/" + eachFunction.__name__,eachFunction))
         
 
-    server = WebPyServer.Server("localhost",8080,initServer)
+    server = WebPyServer.Server(hostname,port,initServer)
     return server
 
