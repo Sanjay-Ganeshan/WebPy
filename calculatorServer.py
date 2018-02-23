@@ -7,7 +7,7 @@ def main():
         return {"answer": a}
     def subtract(x, y):
         #return {"difference": x-y, "positiveDifference": abs(x-y)}
-        return {"difference": x-y}
+        return ["difference", x-y]
     
     server = WebPyCreator.createServer([add,subtract])
     server.start()

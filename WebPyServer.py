@@ -84,7 +84,12 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
 
         objectIn = json.loads(content)
         worked,outputData = Evaluator.evaluate("POST", self.path, objectIn)
-        outputData = prettyPrint(outputData)
+        if outputData is None:
+            outputData = ""
+        if type(outputData) is dict or type(outputData) is list:
+            outputData = prettyPrint(outputData)
+        if type(outputData) is not str:
+            raise Exception("Cannot convert into JSON!")
         outputData = outputData.encode()
         self.wfile.write(outputData)
 
