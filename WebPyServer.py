@@ -1,5 +1,5 @@
 import time
-import BaseHTTPServer
+import http.server
 import json
 
 def prettyPrint(obj):
@@ -30,7 +30,7 @@ class Evaluator:
     @staticmethod
     def addFunction(endpoint):
         #endpoint is an HttpEndpoint
-        if not(endpoint.httpCall in Evaluator.allFunctions.keys()):
+        if not(endpoint.httpCall in list(Evaluator.allFunctions.keys())):
             Evaluator.allFunctions[endpoint.httpCall] = {}
         Evaluator.allFunctions[endpoint.httpCall][endpoint.path] = endpoint
         
@@ -42,14 +42,13 @@ class Evaluator:
         else:
             allInputData = {}
         for eachInput in inputsToFind:
-            print eachInput
-            if eachInput in inputData.keys() and eachInput != "globalState":
+            if eachInput in list(inputData.keys()) and eachInput != "globalState":
                 allInputData[eachInput] = inputData[eachInput]
             elif eachInput != "globalState":
                 return False, {"Error": eachInput + " is a required parameter"}
         return True, funcToExecute(**allInputData)
 
-class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class ServerHandler(http.server.BaseHTTPRequestHandler):
     
     def do_HEAD(self):
         self.send_response(200)
@@ -81,13 +80,13 @@ class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     
         length = int(self.headers['Content-Length'])
         content = self.rfile.read(length)
+        content = content.decode()
 
         objectIn = json.loads(content)
         worked,outputData = Evaluator.evaluate("POST", self.path, objectIn)
-        if(worked):
-            self.wfile.write(prettyPrint(outputData))
-        else:
-            self.wfile.write(prettyPrint(outputData))
+        outputData = prettyPrint(outputData)
+        outputData = outputData.encode()
+        self.wfile.write(outputData)
 
 class Server:
     def __init__(self, HOST_NAME, PORT_NUMBER, initFunction):
@@ -97,16 +96,16 @@ class Server:
         initFunction(Evaluator)
         self.generateServer()
     def generateServer(self):
-        server_class = BaseHTTPServer.HTTPServer
+        server_class = http.server.HTTPServer
         self.httpd = server_class((self.HOST_NAME, self.PORT_NUMBER), ServerHandler)
     def start(self):
-        print time.asctime(), "Server Starts - %s:%s" % (self.HOST_NAME, self.PORT_NUMBER)
+        print(time.asctime(), "Server Starts - %s:%s" % (self.HOST_NAME, self.PORT_NUMBER))
         try:
             self.httpd.serve_forever()
         except KeyboardInterrupt:
             pass
         self.httpd.server_close()
-        print time.asctime(), "Server Stops - %s:%s" % (self.HOST_NAME, self.PORT_NUMBER)
+        print(time.asctime(), "Server Stops - %s:%s" % (self.HOST_NAME, self.PORT_NUMBER))
 
     def close(self):
-        print "LOL NO"
+        print("LOL NO")

@@ -1,5 +1,5 @@
 import time
-import BaseHTTPServer
+import http.server
 import json
 
 def prettyPrint(obj):
@@ -15,7 +15,7 @@ class Evaluator():
         Evaluator.allFunctions = newFunctions
     @staticmethod
     def addFunction(httpCall, path, funcToExecute):
-        if not(httpCall in Evaluator.allFunctions.keys()):
+        if not(httpCall in list(Evaluator.allFunctions.keys())):
             Evaluator.allFunctions[httpCall] = {}
         Evaluator.allFunctions[httpCall][path] = (getArgs(funcToExecute), funcToExecute)
         
@@ -24,14 +24,14 @@ class Evaluator():
         inputsToFind, funcToExecute = Evaluator.allFunctions[httpCall][path]
         allInputData = {} #only good data
         for eachInput in inputsToFind:
-            print eachInput
-            if eachInput in inputData.keys():
+            print(eachInput)
+            if eachInput in list(inputData.keys()):
                 allInputData[eachInput] = inputData[eachInput]
             else:
                 return False, {"Error": eachInput + " is a required parameter"}
         return True, funcToExecute(**allInputData)
 
-class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class MyHandler(http.server.BaseHTTPRequestHandler):
     
     def do_HEAD(self):
         self.send_response(200)
@@ -90,15 +90,15 @@ def initServer():
 
 def main(HOST_NAME, PORT_NUMBER):
     initServer()
-    server_class = BaseHTTPServer.HTTPServer
+    server_class = http.server.HTTPServer
     httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
-    print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER)
+    print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
     httpd.server_close()
-    print time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER)
+    print(time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER))
 
 if __name__ == "__main__":
     main("localhost",1337)

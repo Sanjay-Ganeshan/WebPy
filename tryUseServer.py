@@ -15,7 +15,7 @@ def initServer(evaluator):
         try:
             numToReturn = globalState.myNumber
             globalState.myNumber += 1
-        except Exception,e:
+        except Exception as e:
             globalState.myNumber = numToReturn
         return {"RetVal": numToReturn}
     evaluator.addFunction(WebPyServer.HttpEndpoint("POST","/api/add",add))
